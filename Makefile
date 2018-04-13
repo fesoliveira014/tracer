@@ -13,13 +13,15 @@ RM = rm
 VPATH = src include
 MODULES = glm
 
-all: @echo=off directories softgl
+all: @echo=off directories tracer
 
 tracer: $(OBJS)
 	$(CC) $(LDFLAGS) $(addprefix $(BIN)/, $(OBJS)) $(INCLUDE) -o ./$(BIN)/$@ 
 
-.cpp.o: 
+.cpp.o:
 	$(CC) $(CFLAGS) $(INCLUDE) $< -o ./$(BIN)/$@ 
+
+$(OBJS): | directories
 
 directories:
 	$(MKDIR_P) $(DIRS)

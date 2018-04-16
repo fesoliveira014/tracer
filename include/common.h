@@ -12,6 +12,7 @@
 #include <thread>
 #include <mutex>
 #include <limits>
+#include <random>
 
 #include <cstdint>
 #include <cassert>

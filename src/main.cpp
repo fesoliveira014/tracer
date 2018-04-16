@@ -3,6 +3,7 @@
 #include <ray.hpp>
 #include <hitable.hpp>
 #include <sphere.hpp>
+#include <camera.hpp>
 
 #include <glm/glm.hpp>
 
@@ -27,23 +28,30 @@ int main(int argc, char* argv[])
     }
 
     tracer::image image(200, 100, 3);
+    int samples = 100;
 
-    glm::vec3 lower_left_corner(-2.0f, -1.0f, -1.0f);
-    glm::vec3 horizontal(4.0f, 0.0f, 0.0f);
-    glm::vec3 vertical(0.0f, 2.0f, 0.0f);
-    glm::vec3 origin(0.0f);
+    tracer::camera camera{};
 
     tracer::hitable_list world{};
     world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f));
     world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f));
 
+    std::random_device dev;
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
     for (int j = image.get_height() - 1; j >= 0; --j) {
         for (int i = 0; i < image.get_width(); ++i) {
-            float u = float(i) / float(image.get_width());
-            float v = float(j) / float(image.get_height());
-            tracer::ray ray(origin, lower_left_corner + u * horizontal + v * vertical);
+            glm::vec3 col;
+            tracer::ray ray;
+            for (int n = 0; n < samples; ++n) {
+                float u = (float(i) + dist(dev)) / float(image.get_width());
+                float v = (float(j) + dist(dev)) / float(image.get_height());
+                ray = camera.get_ray(u, v);
+                col += color(ray, world);
+            }
 
-            glm::vec3 col = color(ray, world);
+            col /= float(samples);
+
             int r = int(col.r * 255.99);
             int g = int(col.g * 255.99);
             int b = int(col.b * 255.99);

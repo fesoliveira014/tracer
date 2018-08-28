@@ -13,10 +13,14 @@
 #include <mutex>
 #include <limits>
 #include <random>
+#include <sstream>
 
 #include <cstdint>
 #include <cassert>
 #include <cstring>
+#include <cmath>
+
+#define GLM_ENABLE_EXPERIMENTAL
 
 namespace tracer {
     typedef uint8_t byte;

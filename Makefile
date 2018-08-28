@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17 -c -Wall
+CFLAGS = -std=c++17 -c -Wall -O3
 LDFLAGS =
 BIN = bin
 #DIRS = bin
@@ -30,6 +30,4 @@ $(BIN)/%.o: %.cpp | directories
 
 directories:
 	@echo=off $(MKDIR_P) $(BIN)
-
-# all: 
-# 	g++ --std=c++11 main.cpp tga.cpp -I ./ -o softgl
+	

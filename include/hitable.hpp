@@ -7,11 +7,14 @@
 
 namespace tracer {
 
+struct material;
+
 struct hit_record
 {
     float parameter;
     glm::vec3 point;
     glm::vec3 normal;
+    material* material_ptr;
 };
 
 class hitable

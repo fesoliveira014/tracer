@@ -2,24 +2,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 
-glm::vec3 random_in_unit_sphere()
-{
-    glm::vec3 p;
-    do {
-        p = 2.0f * glm::vec3(tracer::get_uniform_random(), 
-                      tracer::get_uniform_random(), 
-                      tracer::get_uniform_random()) - glm::vec3(1.0f);
-    } while (glm::length2(p) >= 1.0f);
-
-    return p;
-}
-
-glm::vec3 color(const tracer::ray& ray, tracer::hitable& world)
+glm::vec3 color(const tracer::ray& ray, tracer::hitable& world, int depth)
 {
     tracer::hit_record rec;
     if (world.hit(ray, 0.001f, std::numeric_limits<float>::max(), rec)) {
-        glm::vec3 target = rec.point + rec.normal + random_in_unit_sphere();
-        return 0.5f * color(tracer::ray(rec.point, target - rec.point), world);
+        tracer::ray scattered;
+        glm::vec3 attenuation;
+        if (depth < 50 && rec.material_ptr->scatter(ray, rec, attenuation, scattered)) 
+            return attenuation * color(scattered, world, depth + 1);
+        else
+            return glm::vec3(0.0f);
     }
     else {
         glm::vec3 unit_direction = glm::normalize(ray.direction);
@@ -41,8 +33,11 @@ int main(int argc, char* argv[])
     tracer::camera camera{};
 
     tracer::hitable_list world{};
-    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f));
-    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f));
+    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.8f, 0.3f, 0.3f))));
+    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::lambertian(glm::vec3(0.8f, 0.8f, 0.0f))));
+    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::lambertian(glm::vec3(0.8f, 0.8f, 0.0f))));
+    world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 1.0f)));
+    world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.8f, 0.8f), 0.3f)));
 
     int r, g, b;
     glm::vec3 col;
@@ -56,7 +51,7 @@ int main(int argc, char* argv[])
                 float u = (float(i) + tracer::get_uniform_random()) / float(image.get_width());
                 float v = (float(j) + tracer::get_uniform_random()) / float(image.get_height());
                 ray = camera.get_ray(u, v);
-                col += color(ray, world);
+                col += color(ray, world, 0);
             }
             
 

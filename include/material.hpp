@@ -47,4 +47,45 @@ struct metal : public material
     }
 };
 
+struct dieletric : public material
+{
+    float refractionIndex;
+
+    dieletric(float ri) : refractionIndex{ri} {}
+
+    bool scatter(const ray& incoming, const hit_record& record, glm::vec3& attenuation, ray& scattered) const
+    {
+        // snells law:
+        // n * sin(theta) = n' * sin(theta')
+
+        glm::vec3 outwardNormal;
+        glm::vec3 reflected = glm::reflect(glm::normalize(incoming.direction), record.normal);
+        float index;
+        attenuation = glm::vec3(1.f);
+        glm::vec3 refracted;
+
+        if (glm::dot(incoming.direction, record.normal) > 0.f) {
+            outwardNormal = -record.normal;
+            index = refractionIndex;
+        }
+        else {
+            outwardNormal = record.normal;
+            index = 1.f / refractionIndex;
+        }
+
+        refracted = glm::refract(incoming.direction, outwardNormal, index);
+
+        if (refracted != glm::vec3(0.0f)) {
+            scattered = ray(record.point, refracted);
+        }
+        else {
+            scattered = ray(record.point, reflected);
+            return false;
+        }
+
+        return true;
+    }
+
+};
+
 }

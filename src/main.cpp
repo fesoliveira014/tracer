@@ -33,20 +33,26 @@ int main(int argc, char* argv[])
     tracer::camera camera{};
 
     tracer::hitable_list world{};
-    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.8f, 0.3f, 0.3f))));
+    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f))));
     world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::lambertian(glm::vec3(0.8f, 0.8f, 0.0f))));
-    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::lambertian(glm::vec3(0.8f, 0.8f, 0.0f))));
-    world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.3f)));
-    world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new tracer::dieletric(1.3f)));
+    world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.8f)));
+    world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new tracer::dieletric(1.5f)));
+    world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), -0.45f, new tracer::dieletric(1.5f)));
 
     int r, g, b;
-    glm::vec3 col;
+    glm::vec3 col{0.0f};
     tracer::ray ray;
 
-    std::stringstream stream1, stream2;
+    // std::stringstream stream1, stream2;
 
-    for (int j = image.get_height() - 1; j >= 0; --j) {
+    uint32_t image_size = image.get_height() * image.get_width();
+    uint32_t current_pixel = 0;
+    float percentage = 0;
+    std::string progress = "          ";
+
+    for (uint32_t j = image.get_height() - 1; j < image.get_height(); --j) {
         for (uint32_t i = 0; i < image.get_width(); ++i) {
+            col = glm::vec3{0.f};
             for (int n = 0; n < nsamples; ++n) {
                 float u = (float(i) + tracer::get_uniform_random()) / float(image.get_width());
                 float v = (float(j) + tracer::get_uniform_random()) / float(image.get_height());
@@ -55,9 +61,9 @@ int main(int argc, char* argv[])
             }
             
 
+            // stream1 << "color = (" << col.r << "," << col.g << "," << col.b << ")" << std::endl;
             col /= float(nsamples);
             col = glm::sqrt(glm::abs(col));
-            // stream1 << "color = (" << col.r << "," << col.g << "," << col.b << ")" << std::endl;
 
             r = int(col.r * (float)254.99);
             g = int(col.g * (float)254.99);
@@ -65,11 +71,20 @@ int main(int argc, char* argv[])
             // stream2 << "color = (" << r << "," << g << "," << b << ")" << std::endl;
 
             image.set_pixel(i, j, glm::ivec3(r,g,b));
+            current_pixel++;
 
+            percentage = (float)current_pixel / (float)image_size;
+
+            if (percentage > 0.1f)
+                progress[std::floor(percentage * 10) - 1] = '#';
+            printf("progress: [%s] %.2f\r", progress.c_str(), percentage * 100);
         }
     }
 
     image.save(filename, "png");
+
+    // printf("progress: [%s] %.2f\n", progress.c_str(), percentage * 100);
+    printf("done. image saved to %s.\n", filename.c_str());
 
     // std::cout << stream1.str();
     // std::cout << stream2.str();

@@ -73,21 +73,6 @@ bool image::save(std::string filename, std::string extension)
     return res ? true : false;
 }
 
-// bool image::set_pixel(uint x, uint y, glm::ivec3 color, int alpha)
-// {
-//     if (_raw_data == nullptr || x < 0 || y < 0 || x >= _width || y >= _height)
-//         return false;
-
-//     if (_channels == 3) {
-//         byte c[3] = {color.r, color.g, color.b};
-//         memcpy(_raw_data + (x + y * _width) * _channels, c, _channels);
-//     }
-//     else if (_channels == 4) {
-//         byte c[4] = {color.r, color.g, color.b, alpha};
-//         memcpy(_raw_data + (x + y * _width) * _channels, c, _channels);
-//     }
-// }
-
 bool image::set_pixel(uint x, uint y, const glm::ivec3& color, int alpha)
 {
     if (_raw_data == nullptr || x < 0 || y < 0 || x >= _width || y >= _height)

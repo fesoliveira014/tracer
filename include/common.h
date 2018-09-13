@@ -19,6 +19,7 @@
 #include <cassert>
 #include <cstring>
 #include <cmath>
+#include <cstdio>
 
 #define GLM_ENABLE_EXPERIMENTAL
 

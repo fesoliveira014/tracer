@@ -4,8 +4,10 @@
 #include <ray.hpp>
 #include <hitable.hpp>
 #include <utils.hpp>
+#include <maths.hpp>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 namespace tracer {
 
@@ -50,8 +52,17 @@ struct metal : public material
 struct dieletric : public material
 {
     float refractionIndex;
+    mutable std::default_random_engine generator;
+    mutable std::uniform_real_distribution<float> distribution;
 
-    dieletric(float ri) : refractionIndex{ri} {}
+    dieletric(float ri) : refractionIndex{ri}, generator{}, distribution{0.0f, 1.0f} {}
+
+    float schlick(float cosine, float refractionIndex) const
+    {
+        float r0 = (1.0f - refractionIndex) / (1.0f + refractionIndex);
+        r0 *= r0;
+        return r0 + (1.0f - r0) * std::pow((1.0f - cosine), 5.0f);
+    }
 
     bool scatter(const ray& incoming, const hit_record& record, glm::vec3& attenuation, ray& scattered) const
     {
@@ -61,26 +72,34 @@ struct dieletric : public material
         glm::vec3 outwardNormal;
         glm::vec3 reflected = glm::reflect(glm::normalize(incoming.direction), record.normal);
         float index;
-        attenuation = glm::vec3(1.f);
-        glm::vec3 refracted;
+        attenuation = glm::vec3(1.f, 1.f, 1.f);
+        glm::vec3 refracted{0.0f};
+        float reflectionProbability;
+        float cosine;
 
         if (glm::dot(incoming.direction, record.normal) > 0.f) {
             outwardNormal = -record.normal;
             index = refractionIndex;
+            cosine = refractionIndex * glm::dot(incoming.direction, record.normal) / glm::length(incoming.direction);
         }
         else {
             outwardNormal = record.normal;
             index = 1.f / refractionIndex;
+            cosine = -glm::dot(incoming.direction, record.normal) / glm::length(incoming.direction);
         }
 
-        refracted = glm::refract(incoming.direction, outwardNormal, index);
-
-        if (refracted != glm::vec3(0.0f)) {
-            scattered = ray(record.point, refracted);
+        if (refract(incoming.direction, outwardNormal, index, refracted)) {
+            reflectionProbability = schlick(cosine, refractionIndex);
         }
         else {
+            reflectionProbability = 1.0f;
+        }
+
+        if (distribution(generator) < reflectionProbability) {
             scattered = ray(record.point, reflected);
-            return false;
+        }
+        else {
+            scattered = ray(record.point, refracted);
         }
 
         return true;

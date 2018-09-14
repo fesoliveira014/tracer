@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
         filename = std::string(argv[1]);
     }
 
-    tracer::image image(1000, 500, 3);
+    tracer::image image(500, 250, 3);
     int nsamples = 50;
 
     tracer::camera camera{glm::vec3(-2.f, 2.f, 1.f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f), 90.0f, 2.f};

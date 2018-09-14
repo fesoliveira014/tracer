@@ -30,14 +30,18 @@ int main(int argc, char* argv[])
     tracer::image image(500, 250, 3);
     int nsamples = 50;
 
-    tracer::camera camera{};
+    tracer::camera camera{glm::vec3(-2.f, 2.f, 1.f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f), 90.0f, 500.f/250.f};
 
     tracer::hitable_list world{};
     world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f))));
     world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::lambertian(glm::vec3(0.8f, 0.8f, 0.0f))));
-    world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.8f)));
+    world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.1f)));
     world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new tracer::dieletric(1.5f)));
     world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), -0.45f, new tracer::dieletric(1.5f)));
+
+    // float R = glm::cos(glm::pi<float>() / 4);
+    // world.list.push_back(new tracer::sphere(glm::vec3(-R, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.f, 0.f, 1.f))));
+    // world.list.push_back(new tracer::sphere(glm::vec3( R, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(1.f, 0.f, 0.f))));
 
     int r, g, b;
     glm::vec3 col{0.0f};
@@ -77,7 +81,7 @@ int main(int argc, char* argv[])
 
             if (percentage > 0.1f)
                 progress[std::floor(percentage * 10) - 1] = '#';
-            printf("progress: [%s] %.2f\r", progress.c_str(), percentage * 100);
+            printf("progress: [%s] %.2f%% \r", progress.c_str(), percentage * 100);
         }
     }
 

@@ -29,8 +29,16 @@ int main(int argc, char* argv[])
 
     tracer::image image(500, 250, 3);
     int nsamples = 50;
+    
+    glm::vec3 cameraPos = glm::vec3(3.f, 3.f, 2.f);
+    glm::vec3 cameraFront = glm::vec3(0.f, 0.f, -1.f);
+    glm::vec3 cameraUp = glm::vec3(0.f, 1.f, 0.f);
+    float cameraFov = 20.f;
+    float cameraAspect = float(image.get_width()) / float(image.get_height());
+    float cameraAperture = 2.f;
+    float cameraFocusDist = glm::length(cameraPos - cameraFront);
 
-    tracer::camera camera{glm::vec3(-2.f, 2.f, 1.f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f), 90.0f, 2.f};
+    tracer::camera camera{cameraPos, cameraFront, cameraUp, cameraFov, cameraAspect, cameraAperture, cameraFocusDist};
 
     tracer::hitable_list world{};
     world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f))));

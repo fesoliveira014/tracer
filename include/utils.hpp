@@ -25,4 +25,17 @@ inline glm::vec3 random_in_unit_sphere()
     return p;
 }
 
+inline glm::vec3 random_in_unit_disk()
+{
+    glm::vec3 p;
+    do {
+        p = 2.f * glm::vec3(get_uniform_random(),
+                            get_uniform_random(),
+                            0.f) - glm::vec3(1.f, 1.f, 0.f);
+    }
+    while (glm::dot(p, p) >= 1.f);
+
+    return p;
+}
+
 }

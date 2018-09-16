@@ -20,6 +20,47 @@ glm::vec3 color(const tracer::ray& ray, tracer::hitable& world, int depth)
     }
 }
 
+tracer::hitable_list generate_scene()
+{
+    tracer::hitable_list world{};
+
+    world.list.push_back(new tracer::sphere(glm::vec3(0.f, -1000.f, 0.f), 1000.f, new tracer::lambertian(glm::vec3(.5f, .5f, .5f))));
+
+    for (int a = -11; a < 11; ++a) {
+        for (int b = -11; b < 11; ++b) {
+            float chooseMaterial = tracer::get_uniform_random();
+            glm::vec3 center(a + 0.9f + tracer::get_uniform_random(), 
+                             0.2f, b + .9f * tracer::get_uniform_random());
+            if (glm::length(center - glm::vec3{4.f, .2f, 0.f}) > .9f) {
+                if (chooseMaterial < 0.8f) {
+                    world.list.push_back(new tracer::sphere(center, 0.2f, 
+                                         new tracer::lambertian(glm::vec3(tracer::get_uniform_random(), 
+                                                                          tracer::get_uniform_random(), 
+                                                                          tracer::get_uniform_random()))));
+                }
+                else if (chooseMaterial < 0.95f) {
+                    world.list.push_back(new tracer::sphere(center, 0.2f,
+                                                            new tracer::metal(glm::vec3(0.5f * (1.f + tracer::get_uniform_random()),
+                                                                                        0.5f * (1.f + tracer::get_uniform_random()),
+                                                                                        0.5f * (1.f + tracer::get_uniform_random())),
+                                                                              0.5f * tracer::get_uniform_random())));
+                }
+                else {
+                    world.list.push_back(new tracer::sphere(center, 0.2f, new tracer::dieletric(1.5f)));
+                    if (chooseMaterial < 0.97f)
+                        world.list.push_back(new tracer::sphere(center, -0.18f, new tracer::dieletric(1.5f)));
+                }
+            }
+        }
+    }
+
+    world.list.push_back(new tracer::sphere(glm::vec3(0.f, 1.f, 0.f), 1.f, new tracer::dieletric(1.5f)));
+    world.list.push_back(new tracer::sphere(glm::vec3(-4.f, 1.f, 0.f), 1.f, new tracer::lambertian(glm::vec3(0.4f, 0.2f, 0.1f))));
+    world.list.push_back(new tracer::sphere(glm::vec3(4.f, 1.f, 0.f), 1.f, new tracer::metal(glm::vec3(0.7f, 0.6f, 0.5f), 0.0f)));
+
+    return world;
+}
+
 int main(int argc, char* argv[])
 {
     std::string filename("res/output.png");
@@ -27,25 +68,25 @@ int main(int argc, char* argv[])
         filename = std::string(argv[1]);
     }
 
-    tracer::image image(500, 250, 3);
+    tracer::image image(1200, 800, 3);
     int nsamples = 50;
     
-    glm::vec3 cameraPos = glm::vec3(3.f, 3.f, 2.f);
-    glm::vec3 cameraFront = glm::vec3(0.f, 0.f, -1.f);
+    glm::vec3 cameraPos = glm::vec3(13.f, 2.f, 3.f);
+    glm::vec3 cameraFront = glm::vec3(0.f, 0.f, 0.f);
     glm::vec3 cameraUp = glm::vec3(0.f, 1.f, 0.f);
     float cameraFov = 20.f;
     float cameraAspect = float(image.get_width()) / float(image.get_height());
-    float cameraAperture = 2.f;
-    float cameraFocusDist = glm::length(cameraPos - cameraFront);
+    float cameraAperture = 0.1f;
+    float cameraFocusDist = 10.f;
 
     tracer::camera camera{cameraPos, cameraFront, cameraUp, cameraFov, cameraAspect, cameraAperture, cameraFocusDist};
 
-    tracer::hitable_list world{};
-    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f))));
-    world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::metal(glm::vec3(0.2f, 0.3f, 0.5f), 0.f)));
-    world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.1f)));
-    world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new tracer::dieletric(1.5f)));
-    world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), -0.45f, new tracer::dieletric(1.5f)));
+    tracer::hitable_list world = generate_scene();
+    // world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f))));
+    // world.list.push_back(new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::metal(glm::vec3(0.2f, 0.3f, 0.5f), 0.f)));
+    // world.list.push_back(new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.1f)));
+    // world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f, new tracer::dieletric(1.5f)));
+    // world.list.push_back(new tracer::sphere(glm::vec3(-1.0f, 0.0f, -1.0f), -0.45f, new tracer::dieletric(1.5f)));
 
     // float R = glm::cos(glm::pi<float>() / 4);
     // world.list.push_back(new tracer::sphere(glm::vec3(-R, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.f, 0.f, 1.f))));

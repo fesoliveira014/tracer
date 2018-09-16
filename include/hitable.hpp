@@ -32,6 +32,9 @@ class hitable_list : public hitable
 public:
     hitable_list();
     hitable_list(const std::vector<hitable*>& _list);
+    hitable_list(const hitable_list& hl);
+    hitable_list(hitable_list&& hl);
+    
     ~hitable_list();
     virtual bool hit(const ray &r, float t_min,
                      float t_max, hit_record &record) const override;

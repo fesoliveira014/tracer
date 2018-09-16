@@ -14,9 +14,21 @@ hitable_list::hitable_list(const std::vector<hitable *>&_list)
     
 }
 
+hitable_list::hitable_list(const hitable_list& hl)
+    : list{hl.list}
+{
+    
+}
+
+hitable_list::hitable_list(hitable_list&& hl)
+    : list{std::move(hl.list)}
+{
+
+}
+
 hitable_list::~hitable_list()
 {
-    for (auto it : list) {
+    for (auto& it : list) {
         delete it;
     }
 

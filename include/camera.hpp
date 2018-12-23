@@ -9,13 +9,15 @@ namespace tracer {
 class camera
 {
 public:
-    camera(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up, float fov, float aspect, float aperture, float focusDistance) :
+    camera(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up, float fov, float aspect, float aperture, float focusDistance, float t0, float t1) :
         m_position{position},
         m_front{front},
         m_up{up},
         m_fov{fov},
         m_aspect{aspect},
-        m_lensRadius{aperture / 2.f}
+        m_lensRadius{aperture / 2.f},
+        m_time0{t0},
+        m_time1{t1}
     {
         float theta = m_fov * glm::pi<float>() / 180.0f;
         float halfHeight = glm::tan(theta / 2.f);
@@ -35,7 +37,8 @@ public:
     {
         glm::vec3 rp = m_lensRadius * random_in_unit_disk();
         glm::vec3 offset = u * rp.x + v * rp.y;
-        return ray(m_position + offset, m_llc + s*m_horizontal + t*m_vertical - m_position - offset);
+        float time = m_time0 + get_uniform_random() * (m_time1 - m_time0);
+        return ray(m_position + offset, m_llc + s*m_horizontal + t*m_vertical - m_position - offset, time);
     }
 
 private:
@@ -50,6 +53,7 @@ private:
     glm::vec3 u, v, w;
 
     float m_fov, m_aspect;
-    float m_lensRadius;    
+    float m_lensRadius;
+    float m_time0, m_time1;    
 };
 }

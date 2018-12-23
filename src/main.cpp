@@ -33,10 +33,12 @@ tracer::hitable_list generate_scene()
                              0.2f, b + .9f * tracer::get_uniform_random());
             if (glm::length(center - glm::vec3{4.f, .2f, 0.f}) > .9f) {
                 if (chooseMaterial < 0.8f) {
+                    glm::vec3 speed = glm::vec3(0.0f, 0.5f * tracer::get_uniform_random(), 0.0f);
                     world.list.push_back(new tracer::sphere(center, 0.2f, 
                                          new tracer::lambertian(glm::vec3(tracer::get_uniform_random(), 
                                                                           tracer::get_uniform_random(), 
-                                                                          tracer::get_uniform_random()))));
+                                                                          tracer::get_uniform_random())),
+                                         speed, 0.0f, 1.0f));
                 }
                 else if (chooseMaterial < 0.95f) {
                     world.list.push_back(new tracer::sphere(center, 0.2f,
@@ -68,7 +70,7 @@ int main(int argc, char* argv[])
         filename = std::string(argv[1]);
     }
 
-    tracer::image image(1200, 800, 3);
+    tracer::image image(480, 360, 3);
     int nsamples = 50;
     
     glm::vec3 cameraPos = glm::vec3(13.f, 2.f, 3.f);
@@ -76,10 +78,12 @@ int main(int argc, char* argv[])
     glm::vec3 cameraUp = glm::vec3(0.f, 1.f, 0.f);
     float cameraFov = 20.f;
     float cameraAspect = float(image.get_width()) / float(image.get_height());
-    float cameraAperture = 0.1f;
+    float cameraAperture = 0.0f;
     float cameraFocusDist = 10.f;
+    float t0 = 0.0f;
+    float t1 = 1.0f;
 
-    tracer::camera camera{cameraPos, cameraFront, cameraUp, cameraFov, cameraAspect, cameraAperture, cameraFocusDist};
+    tracer::camera camera{cameraPos, cameraFront, cameraUp, cameraFov, cameraAspect, cameraAperture, cameraFocusDist, t0, t1};
 
     tracer::hitable_list world = generate_scene();
     // world.list.push_back(new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f))));

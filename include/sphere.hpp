@@ -12,15 +12,21 @@ class sphere : public hitable
 {
 public:
     sphere();
-    sphere(const glm::vec3& _center, float _radius, material* _mat_ptr);
+    sphere(const glm::vec3& _center, float _radius, material* _mat_ptr, 
+           const glm::vec3& _speed = glm::vec3(0.0f), float t0 = 0.0f, float t1 = 0.0f);
     virtual bool hit(const ray& r, float t_min, 
                      float t_max, hit_record& record) const override;
 
     ~sphere();
 
+    glm::vec3 position(float _time) const;
+
     glm::vec3 center;
     float radius;
     material* mat_ptr;
+
+    glm::vec3 speed;
+    float time0, time1;
 };
 
 }

@@ -27,7 +27,7 @@ struct lambertian : public material
     bool scatter(const ray& incoming, const hit_record& record, glm::vec3& attenuation, ray& scattered) const
     {
         glm::vec3 target = record.point + record.normal + random_in_unit_sphere();
-        scattered = ray(record.point, target - record.point);
+        scattered = ray(record.point, target - record.point, incoming.time);
         attenuation = albedo;
         return true;
     }
@@ -43,7 +43,7 @@ struct metal : public material
     bool scatter(const ray& incoming, const hit_record& record, glm::vec3& attenuation, ray& scattered) const
     {
         glm::vec3 reflected = glm::reflect(glm::normalize(incoming.direction), record.normal);
-        scattered = ray(record.point, reflected + fuzz * random_in_unit_sphere());
+        scattered = ray(record.point, reflected + fuzz * random_in_unit_sphere(), incoming.time);
         attenuation = albedo;
         return glm::dot(scattered.direction, record.normal) > 0.0;
     }
@@ -96,10 +96,10 @@ struct dieletric : public material
         }
 
         if (distribution(generator) < reflectionProbability) {
-            scattered = ray(record.point, reflected);
+            scattered = ray(record.point, reflected, incoming.time);
         }
         else {
-            scattered = ray(record.point, refracted);
+            scattered = ray(record.point, refracted, incoming.time);
         }
 
         return true;

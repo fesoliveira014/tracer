@@ -65,4 +65,28 @@ bool sphere::hit(const ray &r, float t_min,
     return false;
 }
 
+bool sphere::bounding_box(float t0, float t1, aabb& box) const
+{   
+    glm::vec3 center0 = position(t0);
+    glm::vec3 center1 = position(t1);
+
+    glm::vec3 small, big;
+
+    if (center0 == center1) {
+        small = center - glm::vec3(radius, radius, radius);
+        big =   center + glm::vec3(radius, radius, radius);
+    }
+    else {
+        aabb b0{center0 - glm::vec3(radius, radius, radius), center0 + glm::vec3(radius, radius, radius)};
+        aabb b1{center1 - glm::vec3(radius, radius, radius), center1 + glm::vec3(radius, radius, radius)};
+
+        small = glm::vec3{std::min(b0.min.x, b1.min.x), std::min(b0.min.y, b1.min.y), std::min(b0.min.z, b1.min.z)};
+        big = glm::vec3{std::max(b0.max.x, b1.max.x), std::max(b0.max.y, b1.max.y), std::max(b0.max.z, b1.max.z)};
+    }
+
+    box = aabb(small, big);
+
+    return true;
+}
+
 }

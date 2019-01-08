@@ -38,4 +38,14 @@ inline glm::vec3 random_in_unit_disk()
     return p;
 }
 
+inline float ffmin(float a, float b)
+{
+    return a < b ? a : b;
+}
+
+inline float ffmax(float a, float b)
+{
+    return a > b ? a : b;
+}
+
 }

@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 
+
 glm::vec3 color(const tracer::ray& ray, tracer::hitable& world, int depth)
 {
     tracer::hit_record rec;
@@ -66,9 +67,15 @@ tracer::hitable_list generate_scene()
 int main(int argc, char* argv[])
 {
     std::string filename("res/output.png");
+    // int width, height, channels;
+
     if (argc > 1) {
         filename = std::string(argv[1]);
     }
+
+    // if (argc > 2) {
+    //     width = std::
+    // }
 
     tracer::image image(480, 360, 3);
     int nsamples = 50;
@@ -95,6 +102,12 @@ int main(int argc, char* argv[])
     // float R = glm::cos(glm::pi<float>() / 4);
     // world.list.push_back(new tracer::sphere(glm::vec3(-R, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.f, 0.f, 1.f))));
     // world.list.push_back(new tracer::sphere(glm::vec3( R, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(1.f, 0.f, 0.f))));
+    tracer::bvh_node bvh{world.list, t0, t1};
+
+    // for (auto p : world.list) {
+    //     std::cout << p << " ";
+    // }
+    // std::cout << std::endl;
 
     int r, g, b;
     glm::vec3 col{0.0f};
@@ -105,7 +118,7 @@ int main(int argc, char* argv[])
     uint32_t image_size = image.get_height() * image.get_width();
     uint32_t current_pixel = 0;
     float percentage = 0;
-    std::string progress = "          ";
+    std::string progress = "                                                  ";
 
     for (uint32_t j = image.get_height() - 1; j < image.get_height(); --j) {
         for (uint32_t i = 0; i < image.get_width(); ++i) {
@@ -114,9 +127,8 @@ int main(int argc, char* argv[])
                 float u = (float(i) + tracer::get_uniform_random()) / float(image.get_width());
                 float v = (float(j) + tracer::get_uniform_random()) / float(image.get_height());
                 ray = camera.get_ray(u, v);
-                col += color(ray, world, 0);
+                col += color(ray, bvh, 0);
             }
-            
 
             // stream1 << "color = (" << col.r << "," << col.g << "," << col.b << ")" << std::endl;
             col /= float(nsamples);
@@ -132,8 +144,8 @@ int main(int argc, char* argv[])
 
             percentage = (float)current_pixel / (float)image_size;
 
-            if (percentage > 0.1f)
-                progress[std::floor(percentage * 10) - 1] = '#';
+            if (percentage > 0.01f)
+                progress[std::floor(percentage * 50) - 1] = '#';
             printf("progress: [%s] %.2f%% \r", progress.c_str(), percentage * 100);
         }
     }
@@ -141,10 +153,12 @@ int main(int argc, char* argv[])
     image.save(filename, "png");
 
     // printf("progress: [%s] %.2f\n", progress.c_str(), percentage * 100);
-    printf("done. image saved to %s.\n", filename.c_str());
+    printf("\ndone. image saved to %s.\n", filename.c_str());
 
     // std::cout << stream1.str();
     // std::cout << stream2.str();
+
+    bvh.destroy();
 
     return 0;
 }

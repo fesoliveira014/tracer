@@ -16,6 +16,7 @@ public:
            const glm::vec3& _speed = glm::vec3(0.0f), float t0 = 0.0f, float t1 = 0.0f);
     virtual bool hit(const ray& r, float t_min, 
                      float t_max, hit_record& record) const override;
+    virtual bool bounding_box(float t0, float t1, aabb& box) const override;
 
     ~sphere();
 

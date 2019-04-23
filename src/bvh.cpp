@@ -6,7 +6,7 @@
 namespace tracer
 {
 
-bool box_x_cmp(hitable* a, hitable* b)
+bool box_x_cmp(hitable_ptr a, hitable_ptr b)
 {
     aabb box_left, box_right;
     if (!a->bounding_box(0,0,box_left) || !b->bounding_box(0,0,box_right))
@@ -16,7 +16,7 @@ bool box_x_cmp(hitable* a, hitable* b)
     return true;
 }
 
-bool box_y_cmp(hitable* a, hitable* b)
+bool box_y_cmp(hitable_ptr a, hitable_ptr b)
 {
     aabb box_left, box_right;
     if (!a->bounding_box(0,0,box_left) || !b->bounding_box(0,0,box_right))
@@ -26,7 +26,7 @@ bool box_y_cmp(hitable* a, hitable* b)
     return true;
 }
 
-bool box_z_cmp(hitable* a, hitable* b)
+bool box_z_cmp(hitable_ptr a, hitable_ptr b)
 {
     aabb box_left, box_right;
     if (!a->bounding_box(0,0,box_left) || !b->bounding_box(0,0,box_right))
@@ -41,7 +41,7 @@ bvh_node::bvh_node()
 
 }
 
-bvh_node::bvh_node(std::vector<hitable*> list, float t0, float t1)
+bvh_node::bvh_node(std::vector<hitable_ptr> list, float t0, float t1)
 {
     int axis = int(3 * get_uniform_random());
     // std::cout << "axis " << axis << std::endl;
@@ -74,10 +74,10 @@ bvh_node::bvh_node(std::vector<hitable*> list, float t0, float t1)
     }
     else {
         const size_t half = list.size() / 2;
-        std::vector<hitable*> left_list{list.begin(), list.begin() + half};
-        std::vector<hitable*> right_list{list.begin() + half, list.end()};
-        left = new bvh_node (left_list, t0, t1);
-        right = new bvh_node(right_list, t0, t1);
+        std::vector<hitable_ptr> left_list{list.begin(), list.begin() + half};
+        std::vector<hitable_ptr> right_list{list.begin() + half, list.end()};
+        left = hitable_ptr{new bvh_node (left_list, t0, t1)};
+        right = hitable_ptr{new bvh_node(right_list, t0, t1)};
     }
 
     aabb box_left, box_right;
@@ -90,24 +90,24 @@ bvh_node::bvh_node(std::vector<hitable*> list, float t0, float t1)
 
 void bvh_node::destroy(bvh_node* node) 
 {
-    if (!node->is_leaf) {
-        bvh_node* l = (bvh_node*) node->left;
-        bvh_node* r = (bvh_node*) node->right;
-        destroy(l);
-        destroy(r);
-    }
-    delete node;
-    node = nullptr;
+    // if (!node->is_leaf) {
+    //     bvh_node* l = (bvh_node*) node->left;
+    //     bvh_node* r = (bvh_node*) node->right;
+    //     destroy(l);
+    //     destroy(r);
+    // }
+    // delete node;
+    // node = nullptr;
 }
 
 void bvh_node::destroy()
 {
-    if (!is_leaf) {
-        bvh_node* l = (bvh_node*) left;
-        bvh_node* r = (bvh_node*) right;
-        destroy(l);
-        destroy(r);
-    }
+    // if (!is_leaf) {
+    //     bvh_node* l = (bvh_node*) left;
+    //     bvh_node* r = (bvh_node*) right;
+    //     destroy(l);
+    //     destroy(r);
+    // }
 }
 
 bvh_node::~bvh_node()

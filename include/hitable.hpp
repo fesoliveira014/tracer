@@ -32,12 +32,14 @@ public:
 
 };
 
+typedef std::shared_ptr<hitable> hitable_ptr;
+
 class hitable_list : public hitable
 {
 
 public:
     hitable_list();
-    hitable_list(const std::vector<hitable*>& _list);
+    hitable_list(const std::vector<hitable_ptr>& _list);
     hitable_list(const hitable_list& hl);
     hitable_list(hitable_list&& hl);
     
@@ -46,7 +48,7 @@ public:
                      float t_max, hit_record &record) const override;
     virtual bool bounding_box(float t0, float t1, aabb& box) const override;
     
-    std::vector<hitable*> list;
+    std::vector<hitable_ptr> list;
 };
 
 }

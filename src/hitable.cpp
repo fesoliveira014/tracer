@@ -8,7 +8,7 @@ hitable_list::hitable_list()
 
 }
 
-hitable_list::hitable_list(const std::vector<hitable *>&_list)
+hitable_list::hitable_list(const std::vector<hitable_ptr>& _list)
     : list{_list}
 {
     
@@ -28,11 +28,11 @@ hitable_list::hitable_list(hitable_list&& hl)
 
 hitable_list::~hitable_list()
 {
-    for (auto& it : list) {
-        delete it;
-    }
+    // for (auto& it : list) {
+    //     it.cl;
+    // }
 
-    list.clear();
+    // list.clear();
 }
 
 bool hitable_list::hit(const ray &r, float t_min, 

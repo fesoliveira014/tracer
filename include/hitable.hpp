@@ -3,6 +3,7 @@
 #include <common.h>
 #include <ray.hpp>
 #include <aabb.hpp>
+// #include <material.hpp>
 
 #include <glm/glm.hpp>
 
@@ -12,14 +13,16 @@ struct material;
 
 struct hit_record
 {
+    using material_ptr = std::shared_ptr<material>;
+
     float parameter;
     glm::vec3 point;
     glm::vec3 normal;
-    material* material_ptr;
+    material_ptr mat;
 
-    hit_record() : parameter{0.0f}, point{}, normal{}, material_ptr{nullptr} {}
+    hit_record() : parameter{0.0f}, point{}, normal{}, mat{nullptr} {}
     hit_record(const hit_record& h) : 
-        parameter{h.parameter}, point{h.point}, normal{h.normal}, material_ptr{h.material_ptr} {}
+        parameter{h.parameter}, point{h.point}, normal{h.normal}, mat{h.mat} {}
 };
 
 class hitable

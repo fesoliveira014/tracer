@@ -9,7 +9,7 @@ glm::vec3 color(const tracer::ray& ray, tracer::hitable& world, int depth)
     if (world.hit(ray, 0.001f, std::numeric_limits<float>::max(), rec)) {
         tracer::ray scattered;
         glm::vec3 attenuation;
-        if (depth < 50 && rec.material_ptr->scatter(ray, rec, attenuation, scattered)) 
+        if (depth < 50 && rec.mat->scatter(ray, rec, attenuation, scattered)) 
             return attenuation * color(scattered, world, depth + 1);
         else
             return glm::vec3(0.0f);
@@ -25,7 +25,14 @@ tracer::hitable_list generate_scene()
 {
     tracer::hitable_list world{};
 
-    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.f, -1000.f, 0.f), 1000.f, new tracer::lambertian(glm::vec3(.5f, .5f, .5f)))});
+    tracer::texture_ptr checker{new tracer::checker_texture{tracer::texture_ptr{new tracer::constant_texture(glm::vec3(.2f, .3f, .1f))}, 
+                                                            tracer::texture_ptr{new tracer::constant_texture(glm::vec3(.9f, .9f, .9f))}}};
+    
+    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(
+                                                glm::vec3(0.f, -1000.f, 0.f), 
+                                                1000.f, 
+                                                tracer::material_ptr(
+                                                    new tracer::lambertian(checker)))});
 
     for (int a = -11; a < 11; ++a) {
         for (int b = -11; b < 11; ++b) {
@@ -36,30 +43,34 @@ tracer::hitable_list generate_scene()
                 if (chooseMaterial < 0.8f) {
                     glm::vec3 speed = glm::vec3(0.0f, 0.5f * tracer::get_uniform_random(), 0.0f);
                     world.list.push_back(tracer::hitable_ptr{new tracer::sphere(center, 0.2f, 
-                                                             new tracer::lambertian(glm::vec3(tracer::get_uniform_random(), 
-                                                                          tracer::get_uniform_random(), 
-                                                                          tracer::get_uniform_random())),
+                                                             tracer::material_ptr(
+                                                                 new tracer::lambertian(
+                                                                     tracer::texture_ptr(
+                                                                         new tracer::constant_texture(
+                                                                            glm::vec3(tracer::get_uniform_random(), 
+                                                                                      tracer::get_uniform_random(), 
+                                                                                      tracer::get_uniform_random()))))),
                                                              speed, 0.0f, 1.0f)});
                 }
                 else if (chooseMaterial < 0.95f) {
                     world.list.push_back(tracer::hitable_ptr{new tracer::sphere(center, 0.2f,
-                                                                                new tracer::metal(glm::vec3(0.5f * (1.f + tracer::get_uniform_random()),
+                                                                                tracer::material_ptr(new tracer::metal(glm::vec3(0.5f * (1.f + tracer::get_uniform_random()),
                                                                                                             0.5f * (1.f + tracer::get_uniform_random()),
                                                                                                             0.5f * (1.f + tracer::get_uniform_random())),
-                                                                                                  0.5f * tracer::get_uniform_random()))});
+                                                                                                  0.5f * tracer::get_uniform_random())))});
                 }
                 else {
-                    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(center, 0.2f, new tracer::dieletric(1.5f))});
+                    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(center, 0.2f, tracer::material_ptr(new tracer::dieletric(1.5f)))});
                     if (chooseMaterial < 0.97f)
-                        world.list.push_back(tracer::hitable_ptr{new tracer::sphere(center, -0.18f, new tracer::dieletric(1.5f))});
+                        world.list.push_back(tracer::hitable_ptr{new tracer::sphere(center, -0.18f, tracer::material_ptr(new tracer::dieletric(1.5f)))});
                 }
             }
         }
     }
 
-    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.f, 1.f, 0.f), 1.f, new tracer::dieletric(1.5f))});
-    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(-4.f, 1.f, 0.f), 1.f, new tracer::lambertian(glm::vec3(0.4f, 0.2f, 0.1f)))});
-    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(4.f, 1.f, 0.f), 1.f, new tracer::metal(glm::vec3(0.7f, 0.6f, 0.5f), 0.0f))});
+    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.f, 1.f, 0.f), 1.f,  tracer::material_ptr(new tracer::dieletric(1.5f)))});
+    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(-4.f, 1.f, 0.f), 1.f, tracer::material_ptr(new tracer::lambertian(tracer::texture_ptr(new tracer::constant_texture(glm::vec3(0.4f, 0.2f, 0.1f))))))});
+    world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(4.f, 1.f, 0.f), 1.f,  tracer::material_ptr(new tracer::metal(glm::vec3(0.7f, 0.6f, 0.5f), 0.0f)))});
 
     return world;
 }
@@ -77,7 +88,7 @@ int main(int argc, char* argv[])
     //     width = std::
     // }
 
-    tracer::image image(800, 600, 3);
+    tracer::image image(1920, 1080, 3);
     int nsamples = 50;
     
     glm::vec3 cameraPos = glm::vec3(13.f, 2.f, 3.f);
@@ -154,11 +165,6 @@ int main(int argc, char* argv[])
 
     // printf("progress: [%s] %.2f\n", progress.c_str(), percentage * 100);
     printf("\ndone. image saved to %s.\n", filename.c_str());
-
-    // std::cout << stream1.str();
-    // std::cout << stream2.str();
-
-    bvh.destroy();
 
     return 0;
 }

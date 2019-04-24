@@ -5,6 +5,7 @@
 #include <ray.hpp>
 #include <hitable.hpp>
 #include <bvh.hpp>
+#include <texture.hpp>
 #include <material.hpp>
 #include <sphere.hpp>
 #include <camera.hpp>

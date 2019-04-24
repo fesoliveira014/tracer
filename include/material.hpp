@@ -5,6 +5,7 @@
 #include <hitable.hpp>
 #include <utils.hpp>
 #include <maths.hpp>
+#include <texture.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -18,17 +19,19 @@ struct material
     virtual bool scatter(const ray& incoming, const hit_record& record, glm::vec3& attenuation, ray& scattered) const = 0;
 };
 
+typedef std::shared_ptr<material> material_ptr;
+
 struct lambertian : public material
 {
-    glm::vec3 albedo;
+    texture_ptr albedo;
     
-    lambertian(const glm::vec3& a) : albedo{a} {};
+    lambertian(texture_ptr a) : albedo{a} {};
 
     bool scatter(const ray& incoming, const hit_record& record, glm::vec3& attenuation, ray& scattered) const
     {
         glm::vec3 target = record.point + record.normal + random_in_unit_sphere();
         scattered = ray(record.point, target - record.point, incoming.time);
-        attenuation = albedo;
+        attenuation = albedo->value(0, 0, record.point);
         return true;
     }
 };

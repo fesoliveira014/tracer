@@ -9,7 +9,7 @@ sphere::sphere()
 
 }
 
-sphere::sphere(const glm::vec3& _center, float _radius, material* _mat_ptr, 
+sphere::sphere(const glm::vec3& _center, float _radius, material_ptr _mat_ptr, 
                const glm::vec3& _speed, float t0, float t1)
     : center{_center}, radius{_radius}, mat_ptr{_mat_ptr},
       speed{_speed}, time0{t0}, time1{t1}
@@ -19,7 +19,7 @@ sphere::sphere(const glm::vec3& _center, float _radius, material* _mat_ptr,
 
 sphere::~sphere()
 {
-    delete mat_ptr;
+    
 }
 
 glm::vec3 sphere::position(float _time) const
@@ -50,7 +50,7 @@ bool sphere::hit(const ray &r, float t_min,
             record.parameter = t;
             record.point = r.point_at_parameter(t);
             record.normal = (record.point - center) / radius;
-            record.material_ptr = mat_ptr;
+            record.mat = mat_ptr;
             return true;
         }
         t = (-b + sqrtf(d)) / (2.0f * a);
@@ -58,7 +58,7 @@ bool sphere::hit(const ray &r, float t_min,
             record.parameter = t;
             record.point = r.point_at_parameter(t);
             record.normal = (record.point - center) / radius;
-            record.material_ptr = mat_ptr;
+            record.mat = mat_ptr;
             return true;
         }
     }

@@ -16,7 +16,6 @@ public:
     virtual bool hit(const ray& r, float t_min, float t_max, 
                 hit_record& record) const override;
     virtual bool bounding_box(float t0, float t1, aabb& box) const override;
-    void destroy();
 
     hitable_ptr left;
     hitable_ptr right;
@@ -26,7 +25,6 @@ public:
     bool is_leaf;
 
 protected:
-    void destroy(bvh_node* node);
 };
 
 }

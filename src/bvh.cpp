@@ -88,28 +88,6 @@ bvh_node::bvh_node(std::vector<hitable_ptr> list, float t0, float t1)
     bbox = aabb::surrounding_box(box_left, box_right);
 }
 
-void bvh_node::destroy(bvh_node* node) 
-{
-    // if (!node->is_leaf) {
-    //     bvh_node* l = (bvh_node*) node->left;
-    //     bvh_node* r = (bvh_node*) node->right;
-    //     destroy(l);
-    //     destroy(r);
-    // }
-    // delete node;
-    // node = nullptr;
-}
-
-void bvh_node::destroy()
-{
-    // if (!is_leaf) {
-    //     bvh_node* l = (bvh_node*) left;
-    //     bvh_node* r = (bvh_node*) right;
-    //     destroy(l);
-    //     destroy(r);
-    // }
-}
-
 bvh_node::~bvh_node()
 {
 }

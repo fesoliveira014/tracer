@@ -75,6 +75,24 @@ tracer::hitable_list generate_scene()
     return world;
 }
 
+tracer::hitable_list two_spheres()
+{
+    tracer::texture_ptr checker{
+        new tracer::checker_texture {
+            tracer::texture_ptr{ new tracer::constant_texture(glm::vec3(.2f, .3f, .1f)) },
+            tracer::texture_ptr{ new tracer::constant_texture(glm::vec3(.9f, .9f, .9f)) }
+        }  
+    };
+
+    // int n = 50;
+
+    tracer::hitable_list list{};
+    list.list.push_back(tracer::hitable_ptr{new tracer::sphere{glm::vec3{.0, -10., .0}, 10.0, tracer::material_ptr{new tracer::lambertian{checker}}}});
+    list.list.push_back(tracer::hitable_ptr{new tracer::sphere{glm::vec3{.0,  10., .0}, 10.0, tracer::material_ptr{new tracer::lambertian{checker}}}});
+
+    return list;
+}
+
 int main(int argc, char* argv[])
 {
     std::string filename("res/output.png");
@@ -88,7 +106,7 @@ int main(int argc, char* argv[])
     //     width = std::
     // }
 
-    tracer::image image(1920, 1080, 3);
+    tracer::image image(800, 600, 3);
     int nsamples = 50;
     
     glm::vec3 cameraPos = glm::vec3(13.f, 2.f, 3.f);
@@ -104,6 +122,7 @@ int main(int argc, char* argv[])
     tracer::camera camera{cameraPos, cameraFront, cameraUp, cameraFov, cameraAspect, cameraAperture, cameraFocusDist, t0, t1};
 
     tracer::hitable_list world = generate_scene();
+    // tracer::hitable_list world = two_spheres();
     // world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f)))});
     // world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::metal(glm::vec3(0.2f, 0.3f, 0.5f), 0.f))});
     // world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.1f))});

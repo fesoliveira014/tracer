@@ -3,6 +3,7 @@
 #include <common.h>
 
 #include <glm/glm.hpp>
+#include <perlin.hpp>
 
 namespace tracer
 {
@@ -43,6 +44,53 @@ struct checker_texture : public texture
         return even->value(u, v, p);
     }
     
+};
+
+class noise_texture : public texture
+{
+public:
+    noise_texture() : noise{}, scale{1.0f} {}
+    noise_texture(float s) : noise{}, scale{s} {}
+
+    glm::vec3 value(float u, float v, const glm::vec3& p) const override
+    {
+        return glm::vec3(1,1,1) * (1.0f + noise.noise(scale * p)) * 0.5f ; 
+    }  
+private:
+    perlin noise;
+    float scale;
+};
+
+class turbulent_noise_texture : public texture
+{
+public:
+    turbulent_noise_texture() : noise{}, scale{1.0f}, depth{7} {}
+    turbulent_noise_texture(float s, int d = 7) : noise{}, scale{s}, depth{d} {}
+
+    glm::vec3 value(float u, float v, const glm::vec3& p) const override
+    {
+        return glm::vec3(1,1,1) * noise.turbulence(scale * p, depth); 
+    }  
+private:
+    perlin noise;
+    float scale;
+    int depth;
+};
+
+class marble_texture : public texture
+{
+public:
+    marble_texture() : noise{}, scale{1.0f}, depth{7} {}
+    marble_texture(float s, int d = 7) : noise{}, scale{s}, depth{d} {}
+
+    glm::vec3 value(float u, float v, const glm::vec3& p) const override
+    {
+        return glm::vec3(1,1,1) * 0.5f * (1.0f  + std::sin(scale * p.z + 10 * noise.turbulence(scale * p, depth))); 
+    }  
+private:
+    perlin noise;
+    float scale;
+    int depth;
 };
 
 }

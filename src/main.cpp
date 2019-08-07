@@ -84,11 +84,23 @@ tracer::hitable_list two_spheres()
         }  
     };
 
+    tracer::texture_ptr perlin{
+      new tracer::noise_texture{10.f}
+    };
+
+    tracer::texture_ptr turbulent{
+      new tracer::turbulent_noise_texture{10.f}
+    };
+
+    tracer::texture_ptr marble{
+      new tracer::marble_texture{4.f}
+    };
+
     // int n = 50;
 
     tracer::hitable_list list{};
-    list.list.push_back(tracer::hitable_ptr{new tracer::sphere{glm::vec3{.0, -10., .0}, 10.0, tracer::material_ptr{new tracer::lambertian{checker}}}});
-    list.list.push_back(tracer::hitable_ptr{new tracer::sphere{glm::vec3{.0,  10., .0}, 10.0, tracer::material_ptr{new tracer::lambertian{checker}}}});
+    list.list.push_back(tracer::hitable_ptr{new tracer::sphere{glm::vec3{.0, -1000., .0}, 1000.0, tracer::material_ptr{new tracer::lambertian{perlin}}}});
+    list.list.push_back(tracer::hitable_ptr{new tracer::sphere{glm::vec3{.0,  2., .0}, 2.0, tracer::material_ptr{new tracer::lambertian{marble}}}});
 
     return list;
 }
@@ -106,7 +118,7 @@ int main(int argc, char* argv[])
     //     width = std::
     // }
 
-    tracer::image image(800, 600, 3);
+    tracer::image image(320, 240, 3);
     int nsamples = 50;
     
     glm::vec3 cameraPos = glm::vec3(13.f, 2.f, 3.f);
@@ -121,8 +133,8 @@ int main(int argc, char* argv[])
 
     tracer::camera camera{cameraPos, cameraFront, cameraUp, cameraFov, cameraAspect, cameraAperture, cameraFocusDist, t0, t1};
 
-    tracer::hitable_list world = generate_scene();
-    // tracer::hitable_list world = two_spheres();
+    // tracer::hitable_list world = generate_scene();
+    tracer::hitable_list world = two_spheres();
     // world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f,new tracer::lambertian(glm::vec3(0.1f, 0.2f, 0.5f)))});
     // world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(0.0f, -100.5f, -1.0f), 100.0f, new tracer::metal(glm::vec3(0.2f, 0.3f, 0.5f), 0.f))});
     // world.list.push_back(tracer::hitable_ptr{new tracer::sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f, new tracer::metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.1f))});
@@ -160,22 +172,18 @@ int main(int argc, char* argv[])
                 col += color(ray, bvh, 0);
             }
 
-            // stream1 << "color = (" << col.r << "," << col.g << "," << col.b << ")" << std::endl;
             col /= float(nsamples);
             col = glm::sqrt(glm::abs(col));
 
             r = int(col.r * (float)254.99);
             g = int(col.g * (float)254.99);
             b = int(col.b * (float)254.99);
-            // stream2 << "color = (" << r << "," << g << "," << b << ")" << std::endl;
 
             image.set_pixel(i, j, glm::ivec3(r,g,b));
             current_pixel++;
 
             percentage = (float)current_pixel / (float)image_size;
 
-            // if (percentage > 0.01f)
-            //     progress[std::floor(percentage * 50) - 1] = '#';
             printf("progress: %.2f%% \r", /*progress.c_str(),*/ percentage * 100);
         }
     }
